@@ -88,3 +88,7 @@ cluster-api-operator:
       requests:
         cpu: 100m
         memory: 150Mi
+
+projectsveltos:
+  enabled: false
+  namespace: projectsveltos

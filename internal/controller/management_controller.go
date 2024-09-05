@@ -97,8 +97,11 @@ func (r *ManagementReconciler) Update(ctx context.Context, management *hmc.Manag
 		return ctrl.Result{}, err
 	}
 
+	fmt.Println("=================================== Iterating over Components =================================")
 	components := wrappedComponents(management)
-	for _, component := range components {
+	for i, component := range components {
+		fmt.Printf("i=%d, component.Template=%s, helmReleaseName=%s, dependsOn=%s\n", i, component.Template, component.HelmReleaseName(), component.dependsOn)
+		fmt.Printf("-----------------------------------\n")
 		template := &hmc.Template{}
 		err := r.Get(ctx, types.NamespacedName{
 			Namespace: hmc.TemplatesNamespace,
@@ -127,6 +130,7 @@ func (r *ManagementReconciler) Update(ctx context.Context, management *hmc.Manag
 		}
 		updateComponentsStatus(detectedComponents, &detectedProviders, component.Template, template.Status, "")
 	}
+	fmt.Println("=============================================================================")
 
 	management.Status.ObservedGeneration = management.Generation
 	management.Status.AvailableProviders = detectedProviders
@@ -249,6 +253,10 @@ func (r *ManagementReconciler) enableAdditionalComponents(ctx context.Context, m
 	if config["cluster-api-operator"] != nil {
 		capiOperatorValues = config["cluster-api-operator"].(map[string]interface{})
 	}
+	sveltosValues := make(map[string]interface{})
+	if config["projectsveltos"] != nil {
+		sveltosValues = config["projectsveltos"].(map[string]interface{})
+	}
 
 	err := certmanager.VerifyAPI(ctx, r.Config, r.Scheme, hmc.ManagementNamespace)
 	if err != nil {
@@ -266,6 +274,9 @@ func (r *ManagementReconciler) enableAdditionalComponents(ctx context.Context, m
 		capiOperatorValues["enabled"] = true
 	}
 	config["cluster-api-operator"] = capiOperatorValues
+
+	sveltosValues["enabled"] = true
+	config["projectsveltos"] = sveltosValues
 
 	updatedConfig, err := json.Marshal(config)
 	if err != nil {

@@ -8,5 +8,8 @@ dependencies:
 - name: cluster-api-operator
   repository: https://kubernetes-sigs.github.io/cluster-api-operator
   version: 0.12.0
-digest: sha256:f29162745d3dd876c3e35689b6771faa7b66d5f91c0ac532c28db580deadf218
-generated: "2024-08-21T19:47:21.00915+04:00"
+- name: projectsveltos
+  repository: https://projectsveltos.github.io/helm-charts
+  version: 0.37.0
+digest: sha256:548c999cebe4226e30804c1d3f6903dbf5ac2e1d8d6088776bb19a4cc33846ff
+generated: "2024-09-04T00:24:49.648986-04:00"
