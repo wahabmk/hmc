@@ -62,6 +62,14 @@ func ReconcileHelmRelease(
 			Values:      values,
 			DependsOn:   dependsOn,
 		}
+
+		// if name == "hmc" {
+		// 	fmt.Printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ HMCCCCCC $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+		// 	helmRelease.Spec.Timeout = &metav1.Duration{Duration: time.Minute * 15}
+		// 	fmt.Printf(">>>>>>>>>> helmRelease.Spec.Timeout=%s\n", helmRelease.Spec.Timeout)
+		// 	fmt.Printf("\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ HMCCCCC $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+		// }
+
 		return nil
 	})
 	if err != nil {

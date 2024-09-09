@@ -1,16 +1,19 @@
 apiVersion: hmc.mirantis.com/v1alpha1
 kind: ManagedCluster
 metadata:
-  name: aws-dev
+  name: wali-aws-dev
   namespace: ${NAMESPACE}
 spec:
   template: aws-standalone-cp
   config:
-    region: us-east-2
+    region: ca-central-1
     publicIP: true
     controlPlaneNumber: 1
     workersNumber: 1
     controlPlane:
+      amiID: ami-04e7552b5a2a47e47
       instanceType: t3.small
     worker:
+      amiID: ami-04e7552b5a2a47e47
       instanceType: t3.small
+    installBeachHeadServices: false

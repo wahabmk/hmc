@@ -8,5 +8,8 @@ dependencies:
 - name: cluster-api-operator
   repository: https://kubernetes-sigs.github.io/cluster-api-operator
   version: 0.12.0
-digest: sha256:f29162745d3dd876c3e35689b6771faa7b66d5f91c0ac532c28db580deadf218
-generated: "2024-08-21T19:47:21.00915+04:00"
+- name: projectsveltos
+  repository: https://msr.ci.mirantis.com/charts/wali/projectsveltos/
+  version: 0.37.0-dev
+digest: sha256:425a45ffbca4126dd2ca1aa99d89a05a097e5e07dcb87266cc79efc4b6bcb0c7
+generated: "2024-09-05T22:33:34.328852-04:00"

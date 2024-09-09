@@ -35,3 +35,7 @@ dependencies:
     version: 0.12.0
     repository: https://kubernetes-sigs.github.io/cluster-api-operator
     condition: cluster-api-operator.enabled
+  - name: projectsveltos
+    version: 0.37.0-dev
+    repository: https://msr.ci.mirantis.com/charts/wali/projectsveltos/
+    condition: projectsveltos.enabled

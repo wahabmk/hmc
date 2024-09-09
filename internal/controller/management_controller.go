@@ -250,6 +250,10 @@ func (r *ManagementReconciler) enableAdditionalComponents(ctx context.Context, m
 	if config["cluster-api-operator"] != nil {
 		capiOperatorValues = config["cluster-api-operator"].(map[string]interface{})
 	}
+	sveltosValues := make(map[string]interface{})
+	if config["projectsveltos"] != nil {
+		sveltosValues = config["projectsveltos"].(map[string]interface{})
+	}
 
 	err := certmanager.VerifyAPI(ctx, r.Config, r.Scheme, hmc.ManagementNamespace)
 	if err != nil {
@@ -267,6 +271,9 @@ func (r *ManagementReconciler) enableAdditionalComponents(ctx context.Context, m
 		capiOperatorValues["enabled"] = true
 	}
 	config["cluster-api-operator"] = capiOperatorValues
+
+	sveltosValues["enabled"] = true
+	config["projectsveltos"] = sveltosValues
 
 	updatedConfig, err := json.Marshal(config)
 	if err != nil {
