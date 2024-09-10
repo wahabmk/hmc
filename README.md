@@ -253,3 +253,13 @@ spec:
 3. Remove the `hmc-system` namespace:
 
 `kubectl delete ns hmc-system`
+
+
+
+
+
+.PHONY: dev-templates-test
+dev-templates-test: templates-generate
+	@for f in $(shell ls templates/hmc-templates/files/templates/); \
+	do echo $${f}; \
+	done

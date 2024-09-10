@@ -279,7 +279,7 @@ dev-push: docker-build helm-push
 
 .PHONY: dev-templates
 dev-templates: templates-generate
-	$(KUBECTL) -n $(NAMESPACE) apply -f templates/hmc-templates/files/templates
+	KUBECTL=$(KUBECTL) NAMESPACE=$(NAMESPACE) hack/run_templates.sh
 
 .PHONY: dev-aws-creds
 dev-aws-creds: yq

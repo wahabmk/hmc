@@ -164,6 +164,7 @@ func (p *Poller) ensureManagement(ctx context.Context) error {
 			Raw: rawConfig,
 		}
 
+		// WAHAB: 2
 		err = p.Create(ctx, mgmtObj)
 		if err != nil {
 			return fmt.Errorf("failed to create %s Management object: %s", hmc.ManagementName, err)
@@ -255,7 +256,7 @@ func (p *Poller) reconcileHMCTemplates(ctx context.Context) error {
 		Name:      helmChart.Name,
 		Namespace: helmChart.Namespace,
 	}
-	_, operation, err = helm.ReconcileHelmRelease(ctx, p.Client, hmcTemplatesReleaseName, p.SystemNamespace, nil, nil, chartRef, defaultReconcileInterval, nil)
+	_, operation, err = helm.ReconcileHelmRelease(ctx, p.Client, hmcTemplatesReleaseName, p.SystemNamespace, nil, nil, chartRef, defaultReconcileInterval, nil, "", false)
 	if err != nil {
 		return err
 	}

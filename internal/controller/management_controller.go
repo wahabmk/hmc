@@ -100,8 +100,10 @@ func (r *ManagementReconciler) Update(ctx context.Context, management *hmc.Manag
 
 	components := wrappedComponents(management)
 	for _, component := range components {
+		fmt.Printf("\n>>>>>>>>>>>>>>>>>>>>>>>>> component.Template = %s >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n", component.Template)
 		template := &hmc.Template{}
 		err := r.Get(ctx, types.NamespacedName{
+			// WAHAB: 3
 			Namespace: r.SystemNamespace,
 			Name:      component.Template,
 		}, template)
@@ -118,8 +120,14 @@ func (r *ManagementReconciler) Update(ctx context.Context, management *hmc.Manag
 			continue
 		}
 
+		targetNamespace := ""
+		createNamespace := false
+		if component.Template == "projectsveltos" {
+			targetNamespace = "projectsveltos"
+			createNamespace = true
+		}
 		_, _, err = helm.ReconcileHelmRelease(ctx, r.Client, component.HelmReleaseName(), r.SystemNamespace, component.Config,
-			nil, template.Status.ChartRef, defaultReconcileInterval, component.dependsOn)
+			nil, template.Status.ChartRef, defaultReconcileInterval, component.dependsOn, targetNamespace, createNamespace)
 		if err != nil {
 			errMsg := fmt.Sprintf("error reconciling HelmRelease %s/%s: %s", r.SystemNamespace, component.Template, err)
 			updateComponentsStatus(detectedComponents, &detectedProviders, component.Template, template.Status, errMsg)

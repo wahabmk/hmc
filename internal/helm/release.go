@@ -39,6 +39,8 @@ func ReconcileHelmRelease(
 	chartRef *hcv2.CrossNamespaceSourceReference,
 	reconcileInterval time.Duration,
 	dependsOn []meta.NamespacedObjectReference,
+	targetNamespace string,
+	createNamespace bool,
 ) (*hcv2.HelmRelease, controllerutil.OperationResult, error) {
 	helmRelease := &hcv2.HelmRelease{
 		ObjectMeta: metav1.ObjectMeta{
@@ -56,12 +58,22 @@ func ReconcileHelmRelease(
 			helmRelease.OwnerReferences = []metav1.OwnerReference{*ownerReference}
 		}
 		helmRelease.Spec = hcv2.HelmReleaseSpec{
-			ChartRef:    chartRef,
-			Interval:    metav1.Duration{Duration: reconcileInterval},
-			ReleaseName: name,
-			Values:      values,
-			DependsOn:   dependsOn,
+			ChartRef:        chartRef,
+			Interval:        metav1.Duration{Duration: reconcileInterval},
+			ReleaseName:     name,
+			Values:          values,
+			DependsOn:       dependsOn,
+			TargetNamespace: targetNamespace,
+			Install: &hcv2.Install{
+				CreateNamespace: createNamespace,
+			},
 		}
+
+		// if createNamespace {
+		// 	helmRelease.Spec.Install = &hcv2.Install{
+		// 		CreateNamespace: true,
+		// 	}
+		// }
 		return nil
 	})
 	if err != nil {

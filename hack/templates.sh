@@ -31,12 +31,13 @@ for chart in $TEMPLATES_DIR/*; do
         name=$(grep '^name:' $chart/Chart.yaml | awk '{print $2}')
         if [ "$name" = "$HMC_TEMPLATES_CHART_NAME" ]; then continue; fi
         version=$(grep '^version:' $chart/Chart.yaml | awk '{print $2}')
-
+        namespace=$(grep '^  namespace:' $chart/Chart.yaml | awk '{print $2}')
         cat <<EOF > $TEMPLATES_OUTPUT_DIR/$name.yaml
 apiVersion: hmc.mirantis.com/v1alpha1
 kind: Template
 metadata:
   name: $name
+  ${namespace:+namespace: $namespace}
 spec:
   helm:
     chartName: $name

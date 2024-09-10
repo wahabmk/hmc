@@ -2,6 +2,7 @@ apiVersion: hmc.mirantis.com/v1alpha1
 kind: Template
 metadata:
   name: azure-standalone-cp
+  
 spec:
   helm:
     chartName: azure-standalone-cp

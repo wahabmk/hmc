@@ -2,6 +2,7 @@ apiVersion: hmc.mirantis.com/v1alpha1
 kind: Template
 metadata:
   name: azure-hosted-cp
+  
 spec:
   helm:
     chartName: azure-hosted-cp

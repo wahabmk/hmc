@@ -106,6 +106,9 @@ func (m *ManagementSpec) SetProvidersDefaults() {
 		{
 			Template: "cluster-api-provider-azure",
 		},
+		{
+			Template: "projectsveltos",
+		},
 	}
 }
 

@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: register-mgmt-cluster-job
+  labels:
+  {{- include "projectsveltos.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.registerMgmtClusterJob.backoffLimit }}
+  template:
+    spec:
+      containers:
+      - args: {{- toYaml .Values.registerMgmtClusterJob.registerMgmtCluster.args
+          | nindent 8 }}
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.registerMgmtClusterJob.registerMgmtCluster.image.repository
+          }}:{{ .Values.registerMgmtClusterJob.registerMgmtCluster.image.tag | default
+          .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.registerMgmtClusterJob.registerMgmtCluster.imagePullPolicy
+          }}
+        name: register-mgmt-cluster
+        resources: {{- toYaml .Values.registerMgmtClusterJob.registerMgmtCluster.resources
+          | nindent 10 }}
+        securityContext: {{- toYaml .Values.registerMgmtClusterJob.registerMgmtCluster.containerSecurityContext
+          | nindent 10 }}
+      restartPolicy: Never
+      serviceAccountName: register-mgmt-cluster
+  ttlSecondsAfterFinished: 240

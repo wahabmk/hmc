@@ -267,7 +267,7 @@ func (r *ManagedClusterReconciler) Update(ctx context.Context, l logr.Logger, ma
 		}
 
 		hr, _, err := helm.ReconcileHelmRelease(ctx, r.Client, managedCluster.Name, managedCluster.Namespace, managedCluster.Spec.Config,
-			ownerRef, template.Status.ChartRef, defaultReconcileInterval, nil)
+			ownerRef, template.Status.ChartRef, defaultReconcileInterval, nil, "", false)
 		if err != nil {
 			apimeta.SetStatusCondition(managedCluster.GetConditions(), metav1.Condition{
 				Type:    hmc.HelmReleaseReadyCondition,
