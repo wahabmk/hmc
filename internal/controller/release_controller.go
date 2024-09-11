@@ -128,7 +128,10 @@ func (p *Poller) ensureManagement(ctx context.Context) error {
 		if !apierrors.IsNotFound(err) {
 			return fmt.Errorf("failed to get %s Management object", hmc.ManagementName)
 		}
-		mgmtObj.Spec.SetProvidersDefaults()
+
+		if err := mgmtObj.Spec.SetProvidersDefaults(); err != nil {
+			return err
+		}
 
 		getter := helm.NewMemoryRESTClientGetter(p.Config, p.RESTMapper())
 		actionConfig := new(action.Configuration)
@@ -164,6 +167,7 @@ func (p *Poller) ensureManagement(ctx context.Context) error {
 			Raw: rawConfig,
 		}
 
+		// WAHAB: 2
 		err = p.Create(ctx, mgmtObj)
 		if err != nil {
 			return fmt.Errorf("failed to create %s Management object: %s", hmc.ManagementName, err)
@@ -190,7 +194,7 @@ func (p *Poller) reconcileDefaultHelmRepo(ctx context.Context) error {
 		helmRepo.Spec = sourcev1.HelmRepositorySpec{
 			Type:     p.DefaultRepoType,
 			URL:      p.DefaultRegistryURL,
-			Interval: metav1.Duration{Duration: defaultReconcileInterval},
+			Interval: metav1.Duration{Duration: helm.DefaultReconcileInterval},
 			Insecure: p.InsecureRegistry,
 		}
 		if p.RegistryCredentialsSecret != "" {
@@ -234,7 +238,7 @@ func (p *Poller) reconcileHMCTemplates(ctx context.Context) error {
 				Kind: sourcev1.HelmRepositoryKind,
 				Name: defaultRepoName,
 			},
-			Interval: metav1.Duration{Duration: defaultReconcileInterval},
+			Interval: metav1.Duration{Duration: helm.DefaultReconcileInterval},
 		}
 		return nil
 	})
@@ -255,7 +259,9 @@ func (p *Poller) reconcileHMCTemplates(ctx context.Context) error {
 		Name:      helmChart.Name,
 		Namespace: helmChart.Namespace,
 	}
-	_, operation, err = helm.ReconcileHelmRelease(ctx, p.Client, hmcTemplatesReleaseName, p.SystemNamespace, nil, nil, chartRef, defaultReconcileInterval, nil)
+	_, operation, err = helm.ReconcileHelmRelease2(ctx, p.Client, hmcTemplatesReleaseName, p.SystemNamespace, helm.ReconcileHelmReleaseOpts{
+		ChartRef: chartRef,
+	})
 	if err != nil {
 		return err
 	}

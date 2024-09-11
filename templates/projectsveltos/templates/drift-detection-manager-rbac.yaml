@@ -1,0 +1,48 @@
+{{ if .Values.agent.managementCluster }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: drift-detection-manager-role
+  labels:
+  {{- include "projectsveltos.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lib.projectsveltos.io
+  resources:
+  - sveltosclusters
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: drift-detection-manager-rolebinding
+  labels:
+  {{- include "projectsveltos.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'drift-detection-manager-role'
+subjects:
+- kind: ServiceAccount
+  name: 'drift-detection-manager'
+  namespace: '{{ .Release.Namespace }}'
+{{ end }}

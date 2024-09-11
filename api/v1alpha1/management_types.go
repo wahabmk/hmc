@@ -15,6 +15,9 @@
 package v1alpha1
 
 import (
+	"encoding/json"
+	"fmt"
+
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -24,11 +27,16 @@ const (
 	DefaultCoreHMCTemplate  = "hmc"
 	DefaultCoreCAPITemplate = "cluster-api"
 
-	DefaultCAPAConfig = `{
-		"configSecret": {
-           "name": "aws-variables"
-        }
-	}`
+	// DefaultCAPAConfig = `{
+	// 	"configSecret": {
+	//          "name": "aws-variables"
+	//       }
+	// }`
+
+	// DefaultSveltosConfig = `{
+	// 	"targetNamespace": "projectsveltos",
+	// 	"createNamespace": true,
+	// }`
 
 	ManagementName = "hmc"
 
@@ -92,21 +100,28 @@ func (m *ManagementSpec) SetDefaults() bool {
 	return true
 }
 
-func (m *ManagementSpec) SetProvidersDefaults() {
-	m.Providers = []Component{
-		{
-			Template: "k0smotron",
-		},
-		{
-			Template: "cluster-api-provider-aws",
-			Config: &apiextensionsv1.JSON{
-				Raw: []byte(DefaultCAPAConfig),
-			},
-		},
-		{
-			Template: "cluster-api-provider-azure",
-		},
+func (m *ManagementSpec) SetProvidersDefaults() error {
+	providers := []Component{}
+
+	for name, config := range DefaultProviders {
+		c := Component{
+			Template: name,
+		}
+
+		if len(config) > 0 {
+			b, err := json.Marshal(config)
+			if err != nil {
+				return fmt.Errorf("failed to marshal config for %s provider: %w", name, err)
+			}
+
+			c.Config = &apiextensionsv1.JSON{Raw: b}
+		}
+
+		providers = append(providers, c)
 	}
+
+	m.Providers = providers
+	return nil
 }
 
 // ManagementStatus defines the observed state of Management

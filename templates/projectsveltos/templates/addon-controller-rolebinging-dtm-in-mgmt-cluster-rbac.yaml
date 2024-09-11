@@ -1,0 +1,16 @@
+{{ if .Values.agent.managementCluster }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: addon-controller-rolebinging-dtm-in-mgmt-cluster
+  labels:
+  {{- include "projectsveltos.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: 'addon-controller-role-dtm-in-mgmt-cluster'
+subjects:
+- kind: ServiceAccount
+  name: 'addon-controller'
+  namespace: '{{ .Release.Namespace }}'
+{{ end }}
