@@ -17,6 +17,7 @@ package scheme
 import (
 	hcv2 "github.com/fluxcd/helm-controller/api/v2"
 	sourcev1 "github.com/fluxcd/source-controller/api/v1"
+	sveltosv1beta1 "github.com/projectsveltos/addon-controller/api/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -33,6 +34,7 @@ var (
 		v1alpha1.AddToScheme,
 		sourcev1.AddToScheme,
 		hcv2.AddToScheme,
+		sveltosv1beta1.AddToScheme,
 	}
 )
 var Encoder = json.NewYAMLSerializer(json.DefaultMetaFactory, Scheme, Scheme)

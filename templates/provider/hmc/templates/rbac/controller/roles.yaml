@@ -138,6 +138,11 @@ rules:
   resources:
   - namespaces
   verbs: {{ include "rbac.viewerVerbs" . | nindent 4 }}
+- apiGroups:
+  - config.projectsveltos.io
+  resources:
+  - profiles
+  verbs: {{ include "rbac.editorVerbs" . | nindent 4 }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
