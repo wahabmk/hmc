@@ -66,6 +66,14 @@ func WithTemplate(templateName string) Opt {
 	}
 }
 
+func WithServiceTemplate(templateName string) Opt {
+	return func(p *v1alpha1.ManagedCluster) {
+		p.Spec.Services = append(p.Spec.Services, v1alpha1.ManagedClusterServiceSpec{
+			Template: templateName,
+		})
+	}
+}
+
 func WithConfig(config string) Opt {
 	return func(p *v1alpha1.ManagedCluster) {
 		p.Spec.Config = &apiextensionsv1.JSON{
