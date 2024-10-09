@@ -73,8 +73,7 @@ spec:
                   Services is a list of services created via ServiceTemplates
                   that could be installed on the target cluster.
                 items:
-                  description: ManagedClusterServiceSpec represents a Service within
-                    ManagedCluster
+                  description: ServiceSpec represents a Service to be managed
                   properties:
                     disable:
                       description: Disable can be set to disable handling of this
@@ -102,11 +101,28 @@ spec:
                   - template
                   type: object
                 type: array
+              stopOnConflict:
+                description: |-
+                  StopOnConflict specifies what to do in case of a conflict.
+                  E.g. If another object is already managing a service.
+                  By default the remaining services will be deployed even if conflict is detected.
+                  If set to true, the deployment will stop after encountering the first conflict.
+                type: boolean
               template:
                 description: Template is a reference to a Template object located
                   in the same namespace.
                 minLength: 1
                 type: string
+              tier:
+                default: 100
+                description: |-
+                  Tier sets the priority for the services defined in this spec.
+                  Higher value means lower priority and vice versa.
+                  In case of conflict with another object managing the service,
+                  the one with lower priority will get to deploy its services.
+                format: int32
+                minimum: 1
+                type: integer
             required:
             - template
             type: object

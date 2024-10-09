@@ -32,6 +32,8 @@ import (
 
 type ReconcileProfileOpts struct {
 	OwnerReference *metav1.OwnerReference
+	Tier           int32
+	StopOnConflict bool
 	HelmChartOpts  []HelmChartOpts
 }
 
@@ -79,6 +81,8 @@ func ReconcileProfile(ctx context.Context,
 					MatchLabels: matchLabels,
 				},
 			},
+			Tier:               opts.Tier,
+			ContinueOnConflict: !opts.StopOnConflict,
 		}
 
 		for _, hc := range opts.HelmChartOpts {

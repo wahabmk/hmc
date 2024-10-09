@@ -440,7 +440,9 @@ func (r *ManagedClusterReconciler) updateServices(ctx context.Context, mc *hmc.M
 				Name:       mc.Name,
 				UID:        mc.UID,
 			},
-			HelmChartOpts: opts,
+			Tier:           mc.Spec.Tier,
+			StopOnConflict: mc.Spec.StopOnConflict,
+			HelmChartOpts:  opts,
 		}); err != nil {
 		return ctrl.Result{}, fmt.Errorf("failed to reconcile Profile: %w", err)
 	}
