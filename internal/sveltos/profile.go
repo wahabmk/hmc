@@ -31,8 +31,14 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+const (
+	ClusterProfileKind = sveltosv1beta1.ClusterProfileKind
+	ProfileKind        = sveltosv1beta1.ProfileKind
+)
+
 type ReconcileProfileOpts struct {
 	OwnerReference *metav1.OwnerReference
+	MatchLabels    map[string]string
 	HelmChartOpts  []HelmChartOpts
 	Priority       int32
 	StopOnConflict bool
@@ -50,83 +56,28 @@ type HelmChartOpts struct {
 	InsecureSkipTLSVerify bool
 }
 
-// ReconcileProfile reconciles a Sveltos Profile object.
-func ReconcileProfile(ctx context.Context,
+func ReconcileClusterProfile(
+	ctx context.Context,
 	cl client.Client,
 	l logr.Logger,
-	namespace string,
+	profileKind string,
 	name string,
-	matchLabels map[string]string,
 	opts ReconcileProfileOpts,
-) (*sveltosv1beta1.Profile, error) {
-	cp := &sveltosv1beta1.Profile{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
-		},
-	}
+) (*sveltosv1beta1.ClusterProfile, error) {
+	obj := ObjectMeta(opts.OwnerReference)
+	obj.SetName(name)
 
-	tier, err := PriorityToTier(opts.Priority)
-	if err != nil {
-		return nil, err
+	cp := &sveltosv1beta1.ClusterProfile{
+		ObjectMeta: obj,
 	}
 
 	operation, err := ctrl.CreateOrUpdate(ctx, cl, cp, func() error {
-		if cp.Labels == nil {
-			cp.Labels = make(map[string]string)
+		spec, err := Spec(&opts)
+		if err != nil {
+			return err
 		}
+		cp.Spec = *spec
 
-		cp.Labels[hmc.HMCManagedLabelKey] = hmc.HMCManagedLabelValue
-		if opts.OwnerReference != nil {
-			cp.OwnerReferences = []metav1.OwnerReference{*opts.OwnerReference}
-		}
-
-		cp.Spec = sveltosv1beta1.Spec{
-			ClusterSelector: libsveltosv1beta1.Selector{
-				LabelSelector: metav1.LabelSelector{
-					MatchLabels: matchLabels,
-				},
-			},
-			Tier:               tier,
-			ContinueOnConflict: !opts.StopOnConflict,
-		}
-
-		for _, hc := range opts.HelmChartOpts {
-			helmChart := sveltosv1beta1.HelmChart{
-				RepositoryURL:    hc.RepositoryURL,
-				RepositoryName:   hc.RepositoryName,
-				ChartName:        hc.ChartName,
-				ChartVersion:     hc.ChartVersion,
-				ReleaseName:      hc.ReleaseName,
-				ReleaseNamespace: hc.ReleaseNamespace,
-				HelmChartAction:  sveltosv1beta1.HelmChartActionInstall,
-				RegistryCredentialsConfig: &sveltosv1beta1.RegistryCredentialsConfig{
-					PlainHTTP:             hc.PlainHTTP,
-					InsecureSkipTLSVerify: hc.InsecureSkipTLSVerify,
-				},
-			}
-
-			if hc.PlainHTTP {
-				// InsecureSkipTLSVerify is redundant in this case.
-				helmChart.RegistryCredentialsConfig.InsecureSkipTLSVerify = false
-			}
-
-			if hc.Values != nil {
-				b, err := hc.Values.MarshalJSON()
-				if err != nil {
-					return fmt.Errorf("failed to marshal values to JSON for service (%s) in ManagedCluster: %w", hc.RepositoryName, err)
-				}
-
-				b, err = yaml.JSONToYAML(b)
-				if err != nil {
-					return fmt.Errorf("failed to convert values from JSON to YAML for service (%s) in ManagedCluster: %w", hc.RepositoryName, err)
-				}
-
-				helmChart.Values = string(b)
-			}
-
-			cp.Spec.HelmCharts = append(cp.Spec.HelmCharts, helmChart)
-		}
 		return nil
 	})
 	if err != nil {
@@ -134,10 +85,116 @@ func ReconcileProfile(ctx context.Context,
 	}
 
 	if operation == controllerutil.OperationResultCreated || operation == controllerutil.OperationResultUpdated {
-		l.Info(fmt.Sprintf("Successfully %s Profile (%s/%s)", string(operation), cp.Namespace, cp.Name))
+		l.Info(fmt.Sprintf("Successfully %s ClusterProfile (%s)", string(operation), cp.Name))
 	}
 
 	return cp, nil
+}
+
+func ReconcileProfile(
+	ctx context.Context,
+	cl client.Client,
+	l logr.Logger,
+	namespace string,
+	name string,
+	opts ReconcileProfileOpts,
+) (*sveltosv1beta1.Profile, error) {
+	obj := ObjectMeta(opts.OwnerReference)
+	obj.SetNamespace(namespace)
+	obj.SetName(name)
+
+	p := &sveltosv1beta1.Profile{
+		ObjectMeta: obj,
+	}
+
+	operation, err := ctrl.CreateOrUpdate(ctx, cl, p, func() error {
+		spec, err := Spec(&opts)
+		if err != nil {
+			return err
+		}
+		p.Spec = *spec
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if operation == controllerutil.OperationResultCreated || operation == controllerutil.OperationResultUpdated {
+		l.Info(fmt.Sprintf("Successfully %s ClusterProfile (%s)", string(operation), p.Name))
+	}
+
+	return p, nil
+}
+
+func ObjectMeta(owner *metav1.OwnerReference) metav1.ObjectMeta {
+	obj := metav1.ObjectMeta{
+		Labels: map[string]string{
+			hmc.HMCManagedLabelKey: hmc.HMCManagedLabelValue,
+		},
+	}
+
+	if owner != nil {
+		obj.OwnerReferences = []metav1.OwnerReference{*owner}
+	}
+
+	return obj
+}
+
+func Spec(opts *ReconcileProfileOpts) (*sveltosv1beta1.Spec, error) {
+	tier, err := PriorityToTier(opts.Priority)
+	if err != nil {
+		return nil, err
+	}
+
+	spec := &sveltosv1beta1.Spec{
+		ClusterSelector: libsveltosv1beta1.Selector{
+			LabelSelector: metav1.LabelSelector{
+				MatchLabels: opts.MatchLabels,
+			},
+		},
+		Tier:               tier,
+		ContinueOnConflict: !opts.StopOnConflict,
+	}
+
+	for _, hc := range opts.HelmChartOpts {
+		helmChart := sveltosv1beta1.HelmChart{
+			RepositoryURL:    hc.RepositoryURL,
+			RepositoryName:   hc.RepositoryName,
+			ChartName:        hc.ChartName,
+			ChartVersion:     hc.ChartVersion,
+			ReleaseName:      hc.ReleaseName,
+			ReleaseNamespace: hc.ReleaseNamespace,
+			HelmChartAction:  sveltosv1beta1.HelmChartActionInstall,
+			RegistryCredentialsConfig: &sveltosv1beta1.RegistryCredentialsConfig{
+				PlainHTTP:             hc.PlainHTTP,
+				InsecureSkipTLSVerify: hc.InsecureSkipTLSVerify,
+			},
+		}
+
+		if hc.PlainHTTP {
+			// InsecureSkipTLSVerify is redundant in this case.
+			helmChart.RegistryCredentialsConfig.InsecureSkipTLSVerify = false
+		}
+
+		if hc.Values != nil {
+			b, err := hc.Values.MarshalJSON()
+			if err != nil {
+				return nil, fmt.Errorf("failed to marshal values to JSON for service (%s): %w", hc.RepositoryName, err)
+			}
+
+			b, err = yaml.JSONToYAML(b)
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert values from JSON to YAML for service (%s): %w", hc.RepositoryName, err)
+			}
+
+			helmChart.Values = string(b)
+		}
+
+		spec.HelmCharts = append(spec.HelmCharts, helmChart)
+	}
+
+	return spec, nil
 }
 
 func DeleteProfile(ctx context.Context, cl client.Client, namespace string, name string) error {
@@ -145,6 +202,16 @@ func DeleteProfile(ctx context.Context, cl client.Client, namespace string, name
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      name,
+		},
+	})
+
+	return client.IgnoreNotFound(err)
+}
+
+func DeleteClusterProfile(ctx context.Context, cl client.Client, name string) error {
+	err := cl.Delete(ctx, &sveltosv1beta1.ClusterProfile{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
 		},
 	})
 
