@@ -19,6 +19,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	MultiClusterServiceFinalizer = "hmc.mirantis.com/multicluster-service"
+)
+
 // ServiceSpec represents a Service to be managed
 type ServiceSpec struct {
 	// Values is the helm values to be passed to the template.
@@ -27,6 +31,12 @@ type ServiceSpec struct {
 	// +kubebuilder:validation:MinLength=1
 
 	// Template is a reference to a Template object located in the same namespace.
+	// wahab:
+	// --------
+	// I think we should be able to reference Template from another namespace
+	// in a MultiClusterService obj, so we need to also have another filed
+	// to specify namespace. So maybe we should have separate ServiceSpec
+	// structs for ManagedCluster and MultiClusterService?
 	Template string `json:"template"`
 
 	// +kubebuilder:validation:MinLength=1
@@ -57,6 +67,9 @@ type MultiClusterServiceSpec struct {
 	// In case of conflict with another object managing the service,
 	// the one with higher priority will get to deploy its services.
 	Priority int32 `json:"priority,omitempty"`
+
+	// +kubebuilder:default:=false
+
 	// StopOnConflict specifies what to do in case of a conflict.
 	// E.g. If another object is already managing a service.
 	// By default the remaining services will be deployed even if conflict is detected.
@@ -70,8 +83,8 @@ type MultiClusterServiceSpec struct {
 // If this status ends up being common with ManagedClusterStatus,
 // then make a common status struct that can be shared by both.
 type MultiClusterServiceStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// ObservedGeneration is the last observed generation.
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 }
 
 // +kubebuilder:object:root=true

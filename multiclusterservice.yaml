@@ -1,0 +1,12 @@
+apiVersion: hmc.mirantis.com/v1alpha1
+kind: MultiClusterService
+metadata:
+  name: wali-global-ingress
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+  services:
+    - template: ingress-nginx-4-11-0
+      name: ingress-nginx
+      namespace: ingress-nginx

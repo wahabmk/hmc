@@ -429,16 +429,16 @@ func (r *ManagedClusterReconciler) updateServices(ctx context.Context, mc *hmc.M
 	}
 
 	if _, err := sveltos.ReconcileProfile(ctx, r.Client, l, mc.Namespace, mc.Name,
-		map[string]string{
-			hmc.FluxHelmChartNamespaceKey: mc.Namespace,
-			hmc.FluxHelmChartNameKey:      mc.Name,
-		},
 		sveltos.ReconcileProfileOpts{
 			OwnerReference: &metav1.OwnerReference{
 				APIVersion: hmc.GroupVersion.String(),
 				Kind:       hmc.ManagedClusterKind,
 				Name:       mc.Name,
 				UID:        mc.UID,
+			},
+			MatchLabels: map[string]string{
+				hmc.FluxHelmChartNamespaceKey: mc.Namespace,
+				hmc.FluxHelmChartNameKey:      mc.Name,
 			},
 			HelmChartOpts:  opts,
 			Priority:       mc.Spec.Priority,
