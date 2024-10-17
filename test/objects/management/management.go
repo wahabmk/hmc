@@ -64,7 +64,7 @@ func WithProviders(providers []v1alpha1.Provider) Opt {
 	}
 }
 
-func WithAvailableProviders(providers v1alpha1.Providers) Opt {
+func WithAvailableProviders(providers v1alpha1.ProvidersTupled) Opt {
 	return func(p *v1alpha1.Management) {
 		p.Status.AvailableProviders = providers
 	}
@@ -73,5 +73,11 @@ func WithAvailableProviders(providers v1alpha1.Providers) Opt {
 func WithComponentsStatus(components map[string]v1alpha1.ComponentStatus) Opt {
 	return func(p *v1alpha1.Management) {
 		p.Status.Components = components
+	}
+}
+
+func WithRelease(v string) Opt {
+	return func(management *v1alpha1.Management) {
+		management.Spec.Release = v
 	}
 }

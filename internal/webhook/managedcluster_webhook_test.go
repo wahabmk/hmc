@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+	admissionv1 "k8s.io/api/admission/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -36,10 +37,10 @@ var (
 	testNamespace    = "test"
 
 	mgmt = management.NewManagement(
-		management.WithAvailableProviders(v1alpha1.Providers{
-			InfrastructureProviders: []string{"aws"},
-			BootstrapProviders:      []string{"k0s"},
-			ControlPlaneProviders:   []string{"k0s"},
+		management.WithAvailableProviders(v1alpha1.ProvidersTupled{
+			InfrastructureProviders: []v1alpha1.ProviderTuple{{Name: "aws"}},
+			BootstrapProviders:      []v1alpha1.ProviderTuple{{Name: "k0s"}},
+			ControlPlaneProviders:   []v1alpha1.ProviderTuple{{Name: "k0s"}},
 		}),
 	)
 
@@ -57,7 +58,7 @@ var (
 		},
 		{
 			name:           "should fail if the ClusterTemplate is not found in the ManagedCluster's namespace",
-			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			existingObjects: []runtime.Object{
 				mgmt,
 				template.NewClusterTemplate(
@@ -69,7 +70,7 @@ var (
 		},
 		{
 			name:           "should fail if the cluster template was found but is invalid (some validation error)",
-			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			existingObjects: []runtime.Object{
 				mgmt,
 				template.NewClusterTemplate(
@@ -83,42 +84,41 @@ var (
 			err: "the ManagedCluster is invalid: the template is not valid: validation error example",
 		},
 		{
-			name:           "should fail if one or more requested providers are not available yet",
-			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
-			existingObjects: []runtime.Object{
-				management.NewManagement(
-					management.WithAvailableProviders(v1alpha1.Providers{
-						InfrastructureProviders: []string{"aws"},
-						BootstrapProviders:      []string{"k0s"},
-					}),
-				),
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(v1alpha1.Providers{
-						InfrastructureProviders: []string{"azure"},
-						BootstrapProviders:      []string{"k0s"},
-						ControlPlaneProviders:   []string{"k0s"},
-					}),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-			err: "the ManagedCluster is invalid: providers verification failed: one or more required control plane providers are not deployed yet: [k0s]\none or more required infrastructure providers are not deployed yet: [azure]",
-		},
-		{
 			name:           "should succeed",
-			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			managedCluster: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			existingObjects: []runtime.Object{
 				mgmt,
 				template.NewClusterTemplate(
 					template.WithName(testTemplateName),
-					template.WithProvidersStatus(v1alpha1.Providers{
-						InfrastructureProviders: []string{"aws"},
-						BootstrapProviders:      []string{"k0s"},
-						ControlPlaneProviders:   []string{"k0s"},
-					}),
 					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
 				),
 			},
+		},
+		{
+			name: "cluster template k8s version does not satisfy service template constraints",
+			managedCluster: managedcluster.NewManagedCluster(
+				managedcluster.WithClusterTemplate(testTemplateName),
+				managedcluster.WithServiceTemplate(testTemplateName),
+			),
+			existingObjects: []runtime.Object{
+				management.NewManagement(management.WithAvailableProviders(v1alpha1.ProvidersTupled{
+					InfrastructureProviders: []v1alpha1.ProviderTuple{{Name: "aws", VersionOrConstraint: "v1.0.0"}},
+					BootstrapProviders:      []v1alpha1.ProviderTuple{{Name: "k0s", VersionOrConstraint: "v1.0.0"}},
+					ControlPlaneProviders:   []v1alpha1.ProviderTuple{{Name: "k0s", VersionOrConstraint: "v1.0.0"}},
+				})),
+				template.NewClusterTemplate(
+					template.WithName(testTemplateName),
+					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+					template.WithClusterStatusK8sVersion("v1.30.0"),
+				),
+				template.NewServiceTemplate(
+					template.WithName(testTemplateName),
+					template.WithServiceK8sConstraint("<1.30"),
+					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+				),
+			},
+			err:      fmt.Sprintf(`failed to validate k8s compatibility: k8s version v1.30.0 of the ManagedCluster default/%s does not satisfy constrained version <1.30 from the ServiceTemplate default/%s`, managedcluster.DefaultName, testTemplateName),
+			warnings: admission.Warnings{"Failed to validate k8s version compatibility with ServiceTemplates"},
 		},
 	}
 )
@@ -126,7 +126,11 @@ var (
 func TestManagedClusterValidateCreate(t *testing.T) {
 	g := NewWithT(t)
 
-	ctx := context.Background()
+	ctx := admission.NewContextWithRequest(context.Background(), admission.Request{
+		AdmissionRequest: admissionv1.AdmissionRequest{
+			Operation: admissionv1.Create,
+		},
+	})
 	for _, tt := range createAndUpdateTests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := fake.NewClientBuilder().WithScheme(scheme.Scheme).WithRuntimeObjects(tt.existingObjects...).Build()
@@ -140,11 +144,8 @@ func TestManagedClusterValidateCreate(t *testing.T) {
 			} else {
 				g.Expect(err).To(Succeed())
 			}
-			if len(tt.warnings) > 0 {
-				g.Expect(warn).To(Equal(tt.warnings))
-			} else {
-				g.Expect(warn).To(BeEmpty())
-			}
+
+			g.Expect(warn).To(Equal(tt.warnings))
 		})
 	}
 }
@@ -152,7 +153,11 @@ func TestManagedClusterValidateCreate(t *testing.T) {
 func TestManagedClusterValidateUpdate(t *testing.T) {
 	g := NewWithT(t)
 
-	ctx := context.Background()
+	ctx := admission.NewContextWithRequest(context.Background(), admission.Request{
+		AdmissionRequest: admissionv1.AdmissionRequest{
+			Operation: admissionv1.Update,
+		},
+	})
 	for _, tt := range createAndUpdateTests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := fake.NewClientBuilder().WithScheme(scheme.Scheme).WithRuntimeObjects(tt.existingObjects...).Build()
@@ -166,11 +171,8 @@ func TestManagedClusterValidateUpdate(t *testing.T) {
 			} else {
 				g.Expect(err).To(Succeed())
 			}
-			if len(tt.warnings) > 0 {
-				g.Expect(warn).To(Equal(tt.warnings))
-			} else {
-				g.Expect(warn).To(BeEmpty())
-			}
+
+			g.Expect(warn).To(Equal(tt.warnings))
 		})
 	}
 }
@@ -196,8 +198,8 @@ func TestManagedClusterDefault(t *testing.T) {
 		},
 		{
 			name:   "should not set defaults: template is invalid",
-			input:  managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
-			output: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			input:  managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
+			output: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			existingObjects: []runtime.Object{
 				mgmt,
 				template.NewClusterTemplate(
@@ -212,8 +214,8 @@ func TestManagedClusterDefault(t *testing.T) {
 		},
 		{
 			name:   "should not set defaults: config in template status is unset",
-			input:  managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
-			output: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			input:  managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
+			output: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			existingObjects: []runtime.Object{
 				mgmt,
 				template.NewClusterTemplate(
@@ -224,9 +226,9 @@ func TestManagedClusterDefault(t *testing.T) {
 		},
 		{
 			name:  "should set defaults",
-			input: managedcluster.NewManagedCluster(managedcluster.WithTemplate(testTemplateName)),
+			input: managedcluster.NewManagedCluster(managedcluster.WithClusterTemplate(testTemplateName)),
 			output: managedcluster.NewManagedCluster(
-				managedcluster.WithTemplate(testTemplateName),
+				managedcluster.WithClusterTemplate(testTemplateName),
 				managedcluster.WithConfig(managedClusterConfig),
 				managedcluster.WithDryRun(true),
 			),

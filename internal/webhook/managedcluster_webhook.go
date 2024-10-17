@@ -16,10 +16,9 @@ package webhook
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"sort"
 
+	"github.com/Masterminds/semver/v3"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,20 +27,19 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/Mirantis/hmc/api/v1alpha1"
-	"github.com/Mirantis/hmc/internal/utils"
+	hmcv1alpha1 "github.com/Mirantis/hmc/api/v1alpha1"
 )
 
 type ManagedClusterValidator struct {
 	client.Client
 }
 
-var errInvalidManagedCluster = errors.New("the ManagedCluster is invalid")
+const invalidManagedClusterMsg = "the ManagedCluster is invalid"
 
 func (v *ManagedClusterValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	v.Client = mgr.GetClient()
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(&v1alpha1.ManagedCluster{}).
+		For(&hmcv1alpha1.ManagedCluster{}).
 		WithValidator(v).
 		WithDefaulter(v).
 		Complete()
@@ -54,36 +52,88 @@ var (
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type.
 func (v *ManagedClusterValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
-	managedCluster, ok := obj.(*v1alpha1.ManagedCluster)
+	managedCluster, ok := obj.(*hmcv1alpha1.ManagedCluster)
 	if !ok {
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("expected ManagedCluster but got a %T", obj))
 	}
+
 	template, err := v.getManagedClusterTemplate(ctx, managedCluster.Namespace, managedCluster.Spec.Template)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", errInvalidManagedCluster, err)
+		return nil, fmt.Errorf("%s: %v", invalidManagedClusterMsg, err)
 	}
-	err = v.isTemplateValid(ctx, template)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", errInvalidManagedCluster, err)
+
+	if err := isTemplateValid(template); err != nil {
+		return nil, fmt.Errorf("%s: %v", invalidManagedClusterMsg, err)
 	}
+
+	if err := validateK8sCompatibility(ctx, v.Client, template, managedCluster); err != nil {
+		return admission.Warnings{"Failed to validate k8s version compatibility with ServiceTemplates"}, fmt.Errorf("failed to validate k8s compatibility: %v", err)
+	}
+
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type.
 func (v *ManagedClusterValidator) ValidateUpdate(ctx context.Context, _ runtime.Object, newObj runtime.Object) (admission.Warnings, error) {
-	newManagedCluster, ok := newObj.(*v1alpha1.ManagedCluster)
+	newManagedCluster, ok := newObj.(*hmcv1alpha1.ManagedCluster)
 	if !ok {
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("expected ManagedCluster but got a %T", newObj))
 	}
+
 	template, err := v.getManagedClusterTemplate(ctx, newManagedCluster.Namespace, newManagedCluster.Spec.Template)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", errInvalidManagedCluster, err)
+		return nil, fmt.Errorf("%s: %v", invalidManagedClusterMsg, err)
 	}
-	err = v.isTemplateValid(ctx, template)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", errInvalidManagedCluster, err)
+
+	if err := isTemplateValid(template); err != nil {
+		return nil, fmt.Errorf("%s: %v", invalidManagedClusterMsg, err)
 	}
+
+	if err := validateK8sCompatibility(ctx, v.Client, template, newManagedCluster); err != nil {
+		return admission.Warnings{"Failed to validate k8s version compatibility with ServiceTemplates"}, fmt.Errorf("failed to validate k8s compatibility: %v", err)
+	}
+
 	return nil, nil
+}
+
+func validateK8sCompatibility(ctx context.Context, cl client.Client, template *hmcv1alpha1.ClusterTemplate, mc *hmcv1alpha1.ManagedCluster) error {
+	if len(mc.Spec.Services) == 0 || template.Status.KubernetesVersion == "" {
+		return nil // nothing to do
+	}
+
+	mcVersion, err := semver.NewVersion(template.Status.KubernetesVersion)
+	if err != nil { // should never happen
+		return fmt.Errorf("failed to parse k8s version %s of the ManagedCluster %s/%s: %w", template.Status.KubernetesVersion, mc.Namespace, mc.Name, err)
+	}
+
+	for _, v := range mc.Spec.Services {
+		if v.Disable {
+			continue
+		}
+
+		svcTpl := new(hmcv1alpha1.ServiceTemplate)
+		if err := cl.Get(ctx, client.ObjectKey{Namespace: mc.Namespace, Name: v.Template}, svcTpl); err != nil {
+			return fmt.Errorf("failed to get ServiceTemplate %s/%s: %w", mc.Namespace, v.Template, err)
+		}
+
+		constraint := svcTpl.Status.KubernetesConstraint
+		if constraint == "" {
+			continue
+		}
+
+		tplConstraint, err := semver.NewConstraint(constraint)
+		if err != nil { // should never happen
+			return fmt.Errorf("failed to parse k8s constrained version %s of the ServiceTemplate %s/%s: %w", constraint, mc.Namespace, v.Template, err)
+		}
+
+		if !tplConstraint.Check(mcVersion) {
+			return fmt.Errorf("k8s version %s of the ManagedCluster %s/%s does not satisfy constrained version %s from the ServiceTemplate %s/%s",
+				template.Status.KubernetesVersion, mc.Namespace, mc.Name,
+				constraint, mc.Namespace, v.Template)
+		}
+	}
+
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type.
@@ -93,88 +143,45 @@ func (*ManagedClusterValidator) ValidateDelete(_ context.Context, _ runtime.Obje
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type.
 func (v *ManagedClusterValidator) Default(ctx context.Context, obj runtime.Object) error {
-	managedCluster, ok := obj.(*v1alpha1.ManagedCluster)
+	managedCluster, ok := obj.(*hmcv1alpha1.ManagedCluster)
 	if !ok {
 		return apierrors.NewBadRequest(fmt.Sprintf("expected ManagedCluster but got a %T", obj))
 	}
 
-	// Only apply defaults when there's no configuration provided
-	if managedCluster.Spec.Config != nil {
+	// Only apply defaults when there's no configuration provided;
+	// if template ref is empty, then nothing to default
+	if managedCluster.Spec.Config != nil || managedCluster.Spec.Template == "" {
 		return nil
 	}
+
 	template, err := v.getManagedClusterTemplate(ctx, managedCluster.Namespace, managedCluster.Spec.Template)
 	if err != nil {
-		return fmt.Errorf("could not get template for the managedcluster: %s", err)
+		return fmt.Errorf("could not get template for the managedcluster: %v", err)
 	}
-	err = v.isTemplateValid(ctx, template)
-	if err != nil {
-		return fmt.Errorf("template is invalid: %s", err)
+
+	if err := isTemplateValid(template); err != nil {
+		return fmt.Errorf("template is invalid: %v", err)
 	}
+
 	if template.Status.Config == nil {
 		return nil
 	}
+
 	managedCluster.Spec.DryRun = true
 	managedCluster.Spec.Config = &apiextensionsv1.JSON{Raw: template.Status.Config.Raw}
+
 	return nil
 }
 
-func (v *ManagedClusterValidator) getManagedClusterTemplate(ctx context.Context, templateNamespace, templateName string) (*v1alpha1.ClusterTemplate, error) {
-	template := &v1alpha1.ClusterTemplate{}
-	templateRef := client.ObjectKey{Name: templateName, Namespace: templateNamespace}
-	if err := v.Get(ctx, templateRef, template); err != nil {
-		return nil, err
-	}
-	return template, nil
+func (v *ManagedClusterValidator) getManagedClusterTemplate(ctx context.Context, templateNamespace, templateName string) (tpl *hmcv1alpha1.ClusterTemplate, err error) {
+	tpl = new(hmcv1alpha1.ClusterTemplate)
+	return tpl, v.Get(ctx, client.ObjectKey{Namespace: templateNamespace, Name: templateName}, tpl)
 }
 
-func (v *ManagedClusterValidator) isTemplateValid(ctx context.Context, template *v1alpha1.ClusterTemplate) error {
+func isTemplateValid(template *hmcv1alpha1.ClusterTemplate) error {
 	if !template.Status.Valid {
 		return fmt.Errorf("the template is not valid: %s", template.Status.ValidationError)
 	}
-	err := v.verifyProviders(ctx, template)
-	if err != nil {
-		return fmt.Errorf("providers verification failed: %v", err)
-	}
+
 	return nil
-}
-
-func (v *ManagedClusterValidator) verifyProviders(ctx context.Context, template *v1alpha1.ClusterTemplate) error {
-	requiredProviders := template.Status.Providers
-	management := &v1alpha1.Management{}
-	managementRef := client.ObjectKey{Name: v1alpha1.ManagementName}
-	if err := v.Get(ctx, managementRef, management); err != nil {
-		return err
-	}
-
-	exposedProviders := management.Status.AvailableProviders
-	missingProviders := make(map[string][]string)
-	missingProviders["bootstrap"] = getMissingProviders(exposedProviders.BootstrapProviders, requiredProviders.BootstrapProviders)
-	missingProviders["control plane"] = getMissingProviders(exposedProviders.ControlPlaneProviders, requiredProviders.ControlPlaneProviders)
-	missingProviders["infrastructure"] = getMissingProviders(exposedProviders.InfrastructureProviders, requiredProviders.InfrastructureProviders)
-
-	var errs []error
-	for providerType, missing := range missingProviders {
-		if len(missing) > 0 {
-			sort.Slice(missing, func(i, j int) bool {
-				return missing[i] < missing[j]
-			})
-			errs = append(errs, fmt.Errorf("one or more required %s providers are not deployed yet: %v", providerType, missing))
-		}
-	}
-	if len(errs) > 0 {
-		sort.Slice(errs, func(i, j int) bool {
-			return errs[i].Error() < errs[j].Error()
-		})
-		return errors.Join(errs...)
-	}
-	return nil
-}
-
-func getMissingProviders(exposedProviders []string, requiredProviders []string) []string {
-	exposedBootstrapProviders := utils.SliceToMapKeys[[]string, map[string]struct{}](exposedProviders)
-	diff, isSubset := utils.DiffSliceSubset(requiredProviders, exposedBootstrapProviders)
-	if !isSubset {
-		return diff
-	}
-	return []string{}
 }

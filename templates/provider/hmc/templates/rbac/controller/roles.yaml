@@ -57,6 +57,12 @@ rules:
 - apiGroups:
   - hmc.mirantis.com
   resources:
+  - releases/status
+  verbs:
+  - update
+- apiGroups:
+  - hmc.mirantis.com
+  resources:
   - managements/finalizers
   verbs:
   - update
@@ -165,6 +171,7 @@ rules:
   - config.projectsveltos.io
   resources:
   - profiles
+  - clusterprofiles
   verbs: {{ include "rbac.editorVerbs" . | nindent 4 }}
 - apiGroups:
   - hmc.mirantis.com
