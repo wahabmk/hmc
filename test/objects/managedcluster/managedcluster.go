@@ -60,7 +60,7 @@ func WithDryRun(dryRun bool) Opt {
 	}
 }
 
-func WithTemplate(templateName string) Opt {
+func WithClusterTemplate(templateName string) Opt {
 	return func(p *v1alpha1.ManagedCluster) {
 		p.Spec.Template = templateName
 	}

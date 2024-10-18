@@ -21,15 +21,55 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// Providers is a structure holding different types of CAPI providers
-type Providers struct {
-	// InfrastructureProviders is the list of CAPI infrastructure providers
-	InfrastructureProviders []string `json:"infrastructure,omitempty"`
-	// BootstrapProviders is the list of CAPI bootstrap providers
-	BootstrapProviders []string `json:"bootstrap,omitempty"`
-	// ControlPlaneProviders is the list of CAPI control plane providers
-	ControlPlaneProviders []string `json:"controlPlane,omitempty"`
-}
+const (
+	// SucceededReason indicates a condition or event observed a success, for example when declared desired state
+	// matches actual state, or a performed action succeeded.
+	SucceededReason string = "Succeeded"
+
+	// FailedReason indicates a condition or event observed a failure, for example when declared state does not match
+	// actual state, or a performed action failed.
+	FailedReason string = "Failed"
+
+	// ProgressingReason indicates a condition or event observed progression, for example when the reconciliation of a
+	// resource or an action has started.
+	ProgressingReason string = "Progressing"
+)
+
+type (
+	// Providers hold different types of CAPI providers.
+	Providers struct {
+		// InfrastructureProviders is the list of CAPI infrastructure providers
+		InfrastructureProviders []string `json:"infrastructure,omitempty"`
+		// BootstrapProviders is the list of CAPI bootstrap providers
+		BootstrapProviders []string `json:"bootstrap,omitempty"`
+		// ControlPlaneProviders is the list of CAPI control plane providers
+		ControlPlaneProviders []string `json:"controlPlane,omitempty"`
+	}
+
+	// Holds different types of CAPI providers with either
+	// an exact or constrained version in the SemVer format. The requirement
+	// is determined by a consumer of this type.
+	ProvidersTupled struct {
+		// List of CAPI infrastructure providers with either an exact or constrained version in the SemVer format.
+		// Compatibility attributes are optional to be defined.
+		InfrastructureProviders []ProviderTuple `json:"infrastructure,omitempty"`
+		// List of CAPI bootstrap providers with either an exact or constrained version in the SemVer format.
+		// Compatibility attributes are optional to be defined.
+		BootstrapProviders []ProviderTuple `json:"bootstrap,omitempty"`
+		// List of CAPI control plane providers with either an exact or constrained version in the SemVer format.
+		// Compatibility attributes are optional to be defined.
+		ControlPlaneProviders []ProviderTuple `json:"controlPlane,omitempty"`
+	}
+
+	// Represents name of the provider with either an exact or constrained version in the SemVer format.
+	ProviderTuple struct {
+		// Name of the provider.
+		Name string `json:"name,omitempty"`
+		// Compatibility restriction in the SemVer format (exact or constrained version).
+		// Optional to be defined.
+		VersionOrConstraint string `json:"versionOrConstraint,omitempty"`
+	}
+)
 
 const (
 	// Provider CAPA
@@ -103,4 +143,37 @@ func ExtractServiceTemplateName(rawObj client.Object) []string {
 	}
 
 	return templates
+}
+
+func (c ProvidersTupled) BootstrapProvidersNames() []string {
+	return c.names(bootstrapProvidersType)
+}
+
+func (c ProvidersTupled) ControlPlaneProvidersNames() []string {
+	return c.names(controlPlaneProvidersType)
+}
+
+func (c ProvidersTupled) InfrastructureProvidersNames() []string {
+	return c.names(infrastructureProvidersType)
+}
+
+func (c ProvidersTupled) names(typ providersType) []string {
+	f := func(nn []ProviderTuple) []string {
+		res := make([]string, len(nn))
+		for i, v := range nn {
+			res[i] = v.Name
+		}
+		return res
+	}
+
+	switch typ {
+	case bootstrapProvidersType:
+		return f(c.BootstrapProviders)
+	case controlPlaneProvidersType:
+		return f(c.ControlPlaneProviders)
+	case infrastructureProvidersType:
+		return f(c.InfrastructureProviders)
+	default:
+		return []string{}
+	}
 }

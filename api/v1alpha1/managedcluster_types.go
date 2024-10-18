@@ -50,20 +50,6 @@ const (
 	ReadyCondition string = "Ready"
 )
 
-const (
-	// SucceededReason indicates a condition or event observed a success, for example when declared desired state
-	// matches actual state, or a performed action succeeded.
-	SucceededReason string = "Succeeded"
-
-	// FailedReason indicates a condition or event observed a failure, for example when declared state does not match
-	// actual state, or a performed action failed.
-	FailedReason string = "Failed"
-
-	// ProgressingReason indicates a condition or event observed progression, for example when the reconciliation of a
-	// resource or an action has started.
-	ProgressingReason string = "Progressing"
-)
-
 // ManagedClusterSpec defines the desired state of ManagedCluster
 type ManagedClusterSpec struct {
 	// Config allows to provide parameters for template customization.
@@ -74,7 +60,8 @@ type ManagedClusterSpec struct {
 	// +kubebuilder:validation:MinLength=1
 
 	// Template is a reference to a Template object located in the same namespace.
-	Template   string `json:"template"`
+	Template string `json:"template"`
+	// Name reference to the related Credentials object.
 	Credential string `json:"credential,omitempty"`
 	// Services is a list of services created via ServiceTemplates
 	// that could be installed on the target cluster.
@@ -84,13 +71,16 @@ type ManagedClusterSpec struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483646
 
-	// Priority sets the priority for the services defined in this spec.
+	// ServicesPriority sets the priority for the services defined in this spec.
 	// Higher value means higher priority and lower means lower.
 	// In case of conflict with another object managing the service,
 	// the one with higher priority will get to deploy its services.
-	Priority int32 `json:"priority,omitempty"`
+	ServicesPriority int32 `json:"servicesPriority,omitempty"`
 	// DryRun specifies whether the template should be applied after validation or only validated.
 	DryRun bool `json:"dryRun,omitempty"`
+
+	// +kubebuilder:default:=false
+
 	// StopOnConflict specifies what to do in case of a conflict.
 	// E.g. If another object is already managing a service.
 	// By default the remaining services will be deployed even if conflict is detected.
@@ -100,6 +90,9 @@ type ManagedClusterSpec struct {
 
 // ManagedClusterStatus defines the observed state of ManagedCluster
 type ManagedClusterStatus struct {
+	// Currently compatible exact Kubernetes version of the cluster. Being set only if
+	// provided by the corresponding ClusterTemplate.
+	KubernetesVersion string `json:"k8sVersion,omitempty"`
 	// Conditions contains details for the current state of the ManagedCluster
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 	// ObservedGeneration is the last observed generation.
