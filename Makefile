@@ -447,6 +447,10 @@ $(SVELTOS_CRD): $(EXTERNAL_CRD_DIR)
 	rm -f $(SVELTOS_CRD)
 	curl -s --fail https://raw.githubusercontent.com/projectsveltos/sveltos/$(SVELTOS_VERSION)/manifest/crds/sveltos_crds.yaml > $(SVELTOS_CRD)
 
+$(SVELTOS_CRD): $(EXTERNAL_CRD_DIR)
+	rm -f $(SVELTOS_CRD)
+	curl -s https://raw.githubusercontent.com/projectsveltos/sveltos/$(SVELTOS_VERSION)/manifest/crds/sveltos_crds.yaml > $(SVELTOS_CRD)
+
 .PHONY: external-crd
 external-crd: $(FLUX_HELM_CRD) $(FLUX_SOURCE_CHART_CRD) $(FLUX_SOURCE_REPO_CRD) $(SVELTOS_CRD)
 
