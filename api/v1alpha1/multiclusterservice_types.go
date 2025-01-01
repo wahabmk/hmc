@@ -96,7 +96,8 @@ type ServiceSpec struct {
 	// If set to true, the deployment will stop after encountering the first conflict.
 	StopOnConflict bool `json:"stopOnConflict,omitempty"`
 	// Reload instances via rolling upgrade when a ConfigMap/Secret mounted as volume is modified.
-	Reload bool `json:"reload,omitempty"`
+	Reload   bool   `json:"reload,omitempty"`
+	SyncMode string `json:"syncMode"`
 }
 
 // MultiClusterServiceSpec defines the desired state of MultiClusterService

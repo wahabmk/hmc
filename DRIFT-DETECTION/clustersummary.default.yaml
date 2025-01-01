@@ -1,0 +1,433 @@
+# This is an example of changes to clustersummary when the spec was changed
+# via the ClusterDeployment. Which is to say that it wasn't a drift but a spec change.
+# As can be seen, in no point in time does `ClusterSummary.status.featureSummaries[].hash = nil`
+# for `featureID: Helm` even when the status is "Provisioning".
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 2
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "13202"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: 4lc+actPU2DXVxmyCFYkExx6R+ovlL7xqb6ljXXM5nI=
+    lastAppliedTime: "2024-12-29T02:30:40Z"
+    status: Provisioned
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: Eq4yyx7ALQHto1gbEnwf7jsNxTVy7WuvI5choD2C4SY=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18294"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: 4lc+actPU2DXVxmyCFYkExx6R+ovlL7xqb6ljXXM5nI=
+    lastAppliedTime: "2024-12-29T02:30:40Z"
+    status: Provisioned
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: Eq4yyx7ALQHto1gbEnwf7jsNxTVy7WuvI5choD2C4SY=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18295"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: mMDS7jHsFdOC915VS0YM58mcAjVZSC6aztGycWdIAag=
+    lastAppliedTime: "2024-12-29T02:42:10Z"
+    status: Provisioning
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: Eq4yyx7ALQHto1gbEnwf7jsNxTVy7WuvI5choD2C4SY=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18371"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: mMDS7jHsFdOC915VS0YM58mcAjVZSC6aztGycWdIAag=
+    lastAppliedTime: "2024-12-29T02:42:20Z"
+    status: Provisioning
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: Eq4yyx7ALQHto1gbEnwf7jsNxTVy7WuvI5choD2C4SY=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18415"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: mMDS7jHsFdOC915VS0YM58mcAjVZSC6aztGycWdIAag=
+    lastAppliedTime: "2024-12-29T02:42:20Z"
+    status: Provisioning
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: BTxAcqr/Bt3XJMJ4Sb0c92zknpXmds2tukMW2oxK96M=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18417"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: mMDS7jHsFdOC915VS0YM58mcAjVZSC6aztGycWdIAag=
+    lastAppliedTime: "2024-12-29T02:42:26Z"
+    status: Provisioning
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: BTxAcqr/Bt3XJMJ4Sb0c92zknpXmds2tukMW2oxK96M=
+---
+apiVersion: config.projectsveltos.io/v1beta1
+kind: ClusterSummary
+metadata:
+  creationTimestamp: "2024-12-29T02:17:16Z"
+  finalizers:
+  - clustersummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: p--wali-dev-1-capi-wali-dev-1
+  namespace: hmc-system
+  ownerReferences:
+  - apiVersion: config.projectsveltos.io/v1beta1
+    kind: Profile
+    name: wali-dev-1
+    uid: e57c5485-50af-4e53-acfd-534c12a80316
+  resourceVersion: "18449"
+  uid: 76bd015e-9669-4fd9-81d4-0acfb13d7fba
+spec:
+  clusterName: wali-dev-1
+  clusterNamespace: hmc-system
+  clusterProfileSpec:
+    clusterSelector:
+      matchLabels:
+        helm.toolkit.fluxcd.io/name: wali-dev-1
+        helm.toolkit.fluxcd.io/namespace: hmc-system
+    continueOnConflict: true
+    helmCharts:
+    - chartName: ingress-nginx
+      chartVersion: 4.11.0
+      helmChartAction: Install
+      registryCredentialsConfig:
+        plainHTTP: true
+      releaseName: ingress-nginx
+      releaseNamespace: ingress-nginx
+      repositoryName: ingress-nginx
+      repositoryURL: oci://hmc-local-registry:5000/charts
+      values: |
+        commonLabels:
+          label1: A
+          label2: B
+    reloader: false
+    stopMatchingBehavior: WithdrawPolicies
+    syncMode: ContinuousWithDriftDetection
+    tier: 2147483547
+  clusterType: Capi
+status:
+  dependencies: no dependencies
+  featureSummaries:
+  - featureID: Helm
+    hash: mMDS7jHsFdOC915VS0YM58mcAjVZSC6aztGycWdIAag=
+    lastAppliedTime: "2024-12-29T02:42:30Z"
+    status: Provisioned
+  helmReleaseSummaries:
+  - releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    status: Managing
+    valuesHash: BTxAcqr/Bt3XJMJ4Sb0c92zknpXmds2tukMW2oxK96M=

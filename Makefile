@@ -90,7 +90,7 @@ templates-generate:
 	@hack/templates.sh
 
 .PHONY: generate-all
-generate-all: generate manifests templates-generate add-license
+generate-all: generate manifests templates-generate #add-license
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -153,7 +153,7 @@ collect-airgap-providers: yq helm clusterctl $(PROVIDER_TEMPLATES_DIR) $(LOCALBI
 	$(SHELL) hack/collect-airgap-providers.sh
 
 .PHONY: helm-package
-helm-package: $(CHARTS_PACKAGE_DIR) $(EXTENSION_CHARTS_PACKAGE_DIR) helm collect-airgap-providers
+helm-package: $(CHARTS_PACKAGE_DIR) $(EXTENSION_CHARTS_PACKAGE_DIR) helm # collect-airgap-providers
 	@make $(patsubst %,package-%-tmpl,$(TEMPLATE_FOLDERS))
 
 bundle-images: dev-apply $(IMAGES_PACKAGE_DIR) ## Create a tarball with all images used by HMC.

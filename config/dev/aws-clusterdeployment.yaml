@@ -1,17 +1,64 @@
 apiVersion: hmc.mirantis.com/v1alpha1
 kind: ClusterDeployment
 metadata:
-  name: aws-dev
-  namespace: ${NAMESPACE}
+  name: wali-dev-1
+  namespace: hmc-system
+  # labels:
+  #   labelA: A
+  #   labelB: B
 spec:
-  template: aws-standalone-cp-0-0-4
-  credential: aws-cluster-identity-cred
   config:
+    clusterIdentity:
+      name: aws-cluster-identity
+      namespace: hmc-system
     controlPlane:
+      amiID: ami-0eb9fdcf0d07bd5ef
+      # instanceProfile: control-plane.cluster-api-provider-aws.sigs.k8s.io
       instanceType: t3.small
     controlPlaneNumber: 1
-    publicIP: false
-    region: ${AWS_REGION}
+    publicIP: true
+    region: ca-central-1
     worker:
+      amiID: ami-0eb9fdcf0d07bd5ef
+      # instanceProfile: nodes.cluster-api-provider-aws.sigs.k8s.io
       instanceType: t3.small
     workersNumber: 1
+  credential: aws-cluster-identity-cred
+  serviceSpec:
+    services:
+      # - template: kyverno-3-2-6
+      #   name: kyverno
+      #   namespace: kyverno
+      - template: ingress-nginx-4-11-0
+        name: ingress-nginx
+        namespace: ingress-nginx
+        values: |
+          commonLabels:
+            label1: A
+            label2: B
+    priority: 100
+    stopOnConflict: false
+    syncMode: ContinuousWithDriftDetection
+  template: aws-standalone-cp-0-0-4
+---
+apiVersion: hmc.mirantis.com/v1alpha1
+kind: ClusterDeployment
+metadata:
+  name: wali-dev-1
+  namespace: hmc-system
+spec:
+  . . .
+  services:
+    - template: kyverno-3-2-6
+      name: kyverno
+      namespace: kyverno
+    - template: ingress-nginx-4-11-0
+      name: ingress-nginx
+      namespace: ingress-nginx
+      values: |
+        ignoreDrift: true
+    - template: cert-manager-1-16-2
+      name: cert-manager
+      namespace: cert-manager
+  syncMode: ContinuousWithDriftDetection
+. . .

@@ -1,0 +1,983 @@
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 2
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "3090"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: f4ee781a17916e9c9ca57da4b1de09e5c6c776aa223172fdccb560a117cf6d92
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 2
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8689"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: "�\x06�B�(\x14c�]��8\x03u���-AS��\x02ɫv�\x14u�."
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1
+  helmResourcesChanged: true
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 2
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8690"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: e106c942be281463885de992380375bdf5b72d4153e4dc02c9ab76b91475f42e
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1
+  helmResourcesChanged: true
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 2
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8718"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: e106c942be281463885de992380375bdf5b72d4153e4dc02c9ab76b91475f42e
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8719"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec: {}
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: e106c942be281463885de992380375bdf5b72d4153e4dc02c9ab76b91475f42e
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 3
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8720"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec: {}
+status: {}
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 4
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8876"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status: {}
+---
+apiVersion: lib.projectsveltos.io/v1beta1
+kind: ResourceSummary
+metadata:
+  creationTimestamp: "2024-12-28T23:49:28Z"
+  finalizers:
+  - resourcesummaryfinalizer.projectsveltos.io
+  generation: 4
+  labels:
+    projectsveltos.io/cluster-summary-name: p--wali-dev-1-capi-wali-dev-1
+    projectsveltos.io/cluster-summary-namespace: hmc-system
+  name: hmc-system--p--wali-dev-1-capi-wali-dev-1
+  namespace: projectsveltos
+  resourceVersion: "8882"
+  uid: 62fc9179-84d1-46a9-b0e8-e3e962189e92
+spec:
+  chartResources:
+  - chartName: ingress-nginx
+    group:
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ServiceAccount
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: ConfigMap
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRole
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ClusterRoleBinding
+      name: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: Role
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: rbac.authorization.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: RoleBinding
+      name: ingress-nginx
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller-admission
+      namespace: ingress-nginx
+      version: v1
+    - group: ""
+      ignoreForConfigurationDrift: false
+      kind: Service
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: apps
+      ignoreForConfigurationDrift: false
+      kind: Deployment
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+      version: v1
+    - group: networking.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: IngressClass
+      name: nginx
+      version: v1
+    - group: admissionregistration.k8s.io
+      ignoreForConfigurationDrift: false
+      kind: ValidatingWebhookConfiguration
+      name: ingress-nginx-admission
+      version: v1
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+status:
+  helmResourceHashes:
+  - group: ""
+    hash: e0e3b20fe653d541f8a1a8722a381aa1ca169c303d0d2a5ecfe9230523c2765d
+    ignoreForConfigurationDrift: false
+    kind: ServiceAccount
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: ee92acaabcb78a849e28e14553da1a40792c975afe77b9a20d6943f5b57b8da7
+    ignoreForConfigurationDrift: false
+    kind: ConfigMap
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: bc624ddbb6b7d7c360a2128ee9a41e0699533440e00fa8ac5db58e1924293b68
+    ignoreForConfigurationDrift: false
+    kind: ClusterRole
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 7fda84fc937b7f89ea6b99d97440cda2e34536c761eb94dcfc52757149b62b08
+    ignoreForConfigurationDrift: false
+    kind: ClusterRoleBinding
+    name: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: da6656a458d477a286afb6a7ade559fc1a4324496432b818878ff52c497009ce
+    ignoreForConfigurationDrift: false
+    kind: Role
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: rbac.authorization.k8s.io
+    hash: 83d337b8d403e6f11aab8d67c334bfe8063484559625a12b0440db4b8f5f62a1
+    ignoreForConfigurationDrift: false
+    kind: RoleBinding
+    name: ingress-nginx
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: 142999c9eebb83ab1e55bb1d124bcff3a50802974564daac7d8928d64ae38dce
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller-admission
+    namespace: ingress-nginx
+    version: v1
+  - group: ""
+    hash: d756a093c329796c1ba54f3d1bf3b7b94f0ff5c4274986bd1d3f8505df2ae735
+    ignoreForConfigurationDrift: false
+    kind: Service
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: apps
+    hash: f4ee781a17916e9c9ca57da4b1de09e5c6c776aa223172fdccb560a117cf6d92
+    ignoreForConfigurationDrift: false
+    kind: Deployment
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    version: v1
+  - group: networking.k8s.io
+    hash: 9e3ad35a48c1d8ee8d394ee434a11ef4cb1312928b990a0f3e855914bd4c51c1
+    ignoreForConfigurationDrift: false
+    kind: IngressClass
+    name: nginx
+    version: v1
+  - group: admissionregistration.k8s.io
+    hash: f6ffe84aa3354efd279e578d0e88001fe3e63d7d9266b3763aaa0087302668c4
+    ignoreForConfigurationDrift: false
+    kind: ValidatingWebhookConfiguration
+    name: ingress-nginx-admission
+    version: v1

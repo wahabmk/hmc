@@ -1,0 +1,30 @@
+apiVersion: config.projectsveltos.io/v1beta1
+kind: Profile
+metadata:
+  labels:
+    hmc.mirantis.com/managed: "true"
+    projectsveltos.io/cluster-name: wali-dev-1
+    projectsveltos.io/cluster-type: Capi
+    projectsveltos.io/profile-name: wali-dev-1
+  name: wali-dev-1
+  namespace: hmc-system
+spec:
+  clusterSelector:
+    matchLabels:
+      helm.toolkit.fluxcd.io/name: wali-dev-1
+      helm.toolkit.fluxcd.io/namespace: hmc-system
+  continueOnConflict: true
+  helmCharts:
+  - chartName: ingress-nginx
+    chartVersion: 4.11.0
+    helmChartAction: Install
+    registryCredentialsConfig:
+      plainHTTP: true
+    releaseName: ingress-nginx
+    releaseNamespace: ingress-nginx
+    repositoryName: ingress-nginx
+    repositoryURL: oci://hmc-local-registry:5000/charts
+  reloader: false
+  stopMatchingBehavior: WithdrawPolicies
+  syncMode: Continuous
+  tier: 2147483547

@@ -228,6 +228,8 @@ spec:
                       By default the remaining services will be deployed even if conflict is detected.
                       If set to true, the deployment will stop after encountering the first conflict.
                     type: boolean
+                  syncMode:
+                    type: string
                   templateResourceRefs:
                     description: |-
                       TemplateResourceRefs is a list of resources to collect from the management cluster,
@@ -295,6 +297,8 @@ spec:
                       - resource
                       type: object
                     type: array
+                required:
+                - syncMode
                 type: object
               template:
                 description: Template is a reference to a Template object located
