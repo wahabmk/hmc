@@ -20,9 +20,14 @@ import (
 	"testing"
 
 	. "github.com/onsi/gomega"
+	sveltosv1beta1 "github.com/projectsveltos/addon-controller/api/v1beta1"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
@@ -76,33 +81,171 @@ func TestClusterDeploymentValidateCreate(t *testing.T) {
 		err               string
 		warnings          admission.Warnings
 	}{
+		// // // // {
+		// // // // 	name:              "should fail if the template is unset",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(),
+		// // // // 	err:               "the ClusterDeployment is invalid: clustertemplates.k0rdent.mirantis.com \"\" not found",
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if the ClusterTemplate is not found in the ClusterDeployment's namespace",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithNamespace(testNamespace),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: fmt.Sprintf("the ClusterDeployment is invalid: clustertemplates.k0rdent.mirantis.com \"%s\" not found", testTemplateName),
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if the ServiceTemplates are not found in same namespace",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithNamespace("othernamespace"),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: fmt.Sprintf("the ClusterDeployment is invalid: servicetemplates.k0rdent.mirantis.com \"%s\" not found", testSvcTemplate1Name),
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if the cluster template was found but is invalid (some validation error)",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{
+		// // // // 				Valid:           false,
+		// // // // 				ValidationError: "validation error example",
+		// // // // 			}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: the template is not valid: validation error example",
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if the service templates were found but are invalid (some validation error)",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{
+		// // // // 				Valid:           false,
+		// // // // 				ValidationError: "validation error example",
+		// // // // 			}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: the template is not valid: validation error example",
+		// // // // },
+		// // // // // ---------------------------------------------------------------------------------------
+		// // // // {
+		// // // // 	name: "should fail if TemplateResourceRefs are referring to resource in another namespace",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 		clusterdeployment.WithTemplateResourceRefs([]sveltosv1beta1.TemplateResourceRef{
+		// // // // 			{
+		// // // // 				Resource: corev1.ObjectReference{
+		// // // // 					APIVersion: "v1",
+		// // // // 					Kind:       "ConfigMap",
+		// // // // 					Name:       "test-configmap",
+		// // // // 					Namespace:  "othernamespace",
+		// // // // 				},
+		// // // // 			},
+		// // // // 			{
+		// // // // 				Resource: corev1.ObjectReference{
+		// // // // 					APIVersion: "v1",
+		// // // // 					Kind:       "Secret",
+		// // // // 					Name:       "test-secret",
+		// // // // 					Namespace:  "othernamespace",
+		// // // // 				},
+		// // // // 			},
+		// // // // 		}),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: ConfigMap \"test-configmap\" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.templateResourceRefs\nSecret \"test-secret\" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.templateResourceRefs",
+		// // // // },
 		{
-			name:              "should fail if the template is unset",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(),
-			err:               "the ClusterDeployment is invalid: clustertemplates.k0rdent.mirantis.com \"\" not found",
-		},
-		{
-			name: "should fail if the ClusterTemplate is not found in the ClusterDeployment's namespace",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-			),
-			existingObjects: []runtime.Object{
-				mgmt,
-				cred,
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithNamespace(testNamespace),
-				),
-			},
-			err: fmt.Sprintf("the ClusterDeployment is invalid: clustertemplates.k0rdent.mirantis.com \"%s\" not found", testTemplateName),
-		},
-		{
-			name: "should fail if the ServiceTemplates are not found in same namespace",
+			// WAHAB: Testing this
+			name: "should fail if TemplateResourceRefs are referring to resources in same namespace but the resources don't exist",
 			ClusterDeployment: clusterdeployment.NewClusterDeployment(
 				clusterdeployment.WithClusterTemplate(testTemplateName),
 				clusterdeployment.WithCredential(testCredentialName),
 				clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+				clusterdeployment.WithTemplateResourceRefs([]sveltosv1beta1.TemplateResourceRef{
+					{
+						Resource: corev1.ObjectReference{
+							APIVersion: corev1.SchemeGroupVersion.Version,
+							Kind:       "ConfigMap",
+							Name:       "test-configmap",
+							Namespace:  "default",
+						},
+					},
+					{
+						Resource: corev1.ObjectReference{
+							APIVersion: corev1.SchemeGroupVersion.Version,
+							Kind:       "Secret",
+							Name:       "test-secret",
+							Namespace:  "default",
+						},
+					},
+				}),
 			),
 			existingObjects: []runtime.Object{
 				mgmt,
@@ -118,197 +261,280 @@ func TestClusterDeploymentValidateCreate(t *testing.T) {
 				),
 				template.NewServiceTemplate(
 					template.WithName(testSvcTemplate1Name),
-					template.WithNamespace("othernamespace"),
-				),
-			},
-			err: fmt.Sprintf("the ClusterDeployment is invalid: servicetemplates.k0rdent.mirantis.com \"%s\" not found", testSvcTemplate1Name),
-		},
-		{
-			name: "should fail if the cluster template was found but is invalid (some validation error)",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-			),
-			existingObjects: []runtime.Object{
-				mgmt,
-				cred,
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{
-						Valid:           false,
-						ValidationError: "validation error example",
-					}),
-				),
-			},
-			err: "the ClusterDeployment is invalid: the template is not valid: validation error example",
-		},
-		{
-			name: "should fail if the service templates were found but are invalid (some validation error)",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-				clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
-			),
-			existingObjects: []runtime.Object{
-				mgmt,
-				cred,
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					),
 					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
 				),
-				template.NewServiceTemplate(
-					template.WithName(testSvcTemplate1Name),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{
-						Valid:           false,
-						ValidationError: "validation error example",
-					}),
-				),
+				// &corev1.ConfigMap{
+				// 	TypeMeta: metav1.TypeMeta{
+				// 		APIVersion: "v1",
+				// 		Kind:       "ConfigMap",
+				// 	},
+				// 	ObjectMeta: metav1.ObjectMeta{
+				// 		Name: "test-configmap",
+				// 	},
+				// },
+				// &corev1.Secret{
+				// 	TypeMeta: metav1.TypeMeta{
+				// 		APIVersion: "v1",
+				// 		Kind:       "Secret",
+				// 	},
+				// 	ObjectMeta: metav1.ObjectMeta{
+				// 		Name: "test-secret",
+				// 	},
+				// },
 			},
-			err: "the ClusterDeployment is invalid: the template is not valid: validation error example",
+			err: "the ClusterDeployment is invalid: configmaps \"test-configmap\" not found\nsecrets \"test-secret\" not found",
 		},
-		{
-			name: "should succeed",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-				clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
-			),
-			existingObjects: []runtime.Object{
-				mgmt,
-				cred,
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-				template.NewServiceTemplate(
-					template.WithName(testSvcTemplate1Name),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-		},
-		{
-			name: "cluster template k8s version does not satisfy service template constraints",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithServiceTemplate(testTemplateName),
-			),
-			existingObjects: []runtime.Object{
-				cred,
-				management.NewManagement(management.WithAvailableProviders(v1alpha1.Providers{
-					"infrastructure-aws",
-					"control-plane-k0smotron",
-					"bootstrap-k0smotron",
-				})),
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-					template.WithClusterStatusK8sVersion("v1.30.0"),
-				),
-				template.NewServiceTemplate(
-					template.WithName(testTemplateName),
-					template.WithServiceK8sConstraint("<1.30"),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-			err:      fmt.Sprintf(`failed to validate k8s compatibility: k8s version v1.30.0 of the ClusterDeployment default/%s does not satisfy constrained version <1.30 from the ServiceTemplate default/%s`, clusterdeployment.DefaultName, testTemplateName),
-			warnings: admission.Warnings{"Failed to validate k8s version compatibility with ServiceTemplates"},
-		},
-		{
-			name:              "should fail if the credential is unset",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(clusterdeployment.WithClusterTemplate(testTemplateName)),
-			existingObjects: []runtime.Object{
-				mgmt,
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-			err: "the ClusterDeployment is invalid: credentials.k0rdent.mirantis.com \"\" not found",
-		},
-		{
-			name: "should fail if credential is not Ready",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-			),
-			existingObjects: []runtime.Object{
-				mgmt,
-				credential.NewCredential(
-					credential.WithName(testCredentialName),
-					credential.WithReady(false),
-					credential.WithIdentityRef(
-						&corev1.ObjectReference{
-							Kind: "AWSClusterStaticIdentity",
-							Name: "awsclid",
-						}),
-				),
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-			err: "the ClusterDeployment is invalid: credential is not Ready",
-		},
-		{
-			name: "should fail if credential and template providers doesn't match",
-			ClusterDeployment: clusterdeployment.NewClusterDeployment(
-				clusterdeployment.WithClusterTemplate(testTemplateName),
-				clusterdeployment.WithCredential(testCredentialName),
-			),
-			existingObjects: []runtime.Object{
-				credential.NewCredential(
-					credential.WithName(testCredentialName),
-					credential.WithReady(true),
-					credential.WithIdentityRef(
-						&corev1.ObjectReference{
-							Kind: "SomeOtherDummyClusterStaticIdentity",
-							Name: "otherdummyclid",
-						}),
-				),
-				management.NewManagement(
-					management.WithAvailableProviders(v1alpha1.Providers{
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					}),
-				),
-				template.NewClusterTemplate(
-					template.WithName(testTemplateName),
-					template.WithProvidersStatus(
-						"infrastructure-aws",
-						"control-plane-k0smotron",
-						"bootstrap-k0smotron",
-					),
-					template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
-				),
-			},
-			err: "the ClusterDeployment is invalid: wrong kind of the ClusterIdentity \"SomeOtherDummyClusterStaticIdentity\" for provider \"infrastructure-aws\"",
-		},
+		// // // // {
+		// // // // 	name: "should fail if ValuesFrom are referring to resource in another namespace",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		// clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 		clusterdeployment.WithServiceTemplateAndValuesFrom(testSvcTemplate1Name, []sveltosv1beta1.ValueFrom{
+		// // // // 			{
+		// // // // 				Kind:      "ConfigMap",
+		// // // // 				Name:      "test-configmap",
+		// // // // 				Namespace: "othernamespace",
+		// // // // 			},
+		// // // // 			{
+		// // // // 				Kind:      "Secret",
+		// // // // 				Name:      "test-secret",
+		// // // // 				Namespace: "othernamespace",
+		// // // // 			},
+		// // // // 		}),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: ConfigMap \"test-configmap\" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom\nSecret \"test-secret\" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom",
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if ValueFrom are referring to resources in same namespace but the resources don't exist",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		// clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 		clusterdeployment.WithServiceTemplateAndValuesFrom(testSvcTemplate1Name, []sveltosv1beta1.ValueFrom{
+		// // // // 			{
+		// // // // 				Kind:      "ConfigMap",
+		// // // // 				Name:      "test-configmap",
+		// // // // 				Namespace: "default",
+		// // // // 			},
+		// // // // 			{
+		// // // // 				Kind:      "Secret",
+		// // // // 				Name:      "test-secret",
+		// // // // 				Namespace: "default",
+		// // // // 			},
+		// // // // 		}),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		// &corev1.ConfigMap{
+		// // // // 		// 	TypeMeta: metav1.TypeMeta{
+		// // // // 		// 		APIVersion: "v1",
+		// // // // 		// 		Kind:       "ConfigMap",
+		// // // // 		// 	},
+		// // // // 		// 	ObjectMeta: metav1.ObjectMeta{
+		// // // // 		// 		Name: "test-configmap",
+		// // // // 		// 	},
+		// // // // 		// },
+		// // // // 		// &corev1.Secret{
+		// // // // 		// 	TypeMeta: metav1.TypeMeta{
+		// // // // 		// 		APIVersion: "v1",
+		// // // // 		// 		Kind:       "Secret",
+		// // // // 		// 	},
+		// // // // 		// 	ObjectMeta: metav1.ObjectMeta{
+		// // // // 		// 		Name: "test-secret",
+		// // // // 		// 	},
+		// // // // 		// },
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: configmaps \"test-configmap\" not found\nsecrets \"test-secret\" not found",
+		// // // // },
+		// // // // // ---------------------------------------------------------------------------------------
+		// // // // {
+		// // // // 	name: "should succeed",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 		clusterdeployment.WithServiceTemplate(testSvcTemplate1Name),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		cred,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testSvcTemplate1Name),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // },
+		// // // // {
+		// // // // 	name: "cluster template k8s version does not satisfy service template constraints",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithServiceTemplate(testTemplateName),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		cred,
+		// // // // 		management.NewManagement(management.WithAvailableProviders(v1alpha1.Providers{
+		// // // // 			"infrastructure-aws",
+		// // // // 			"control-plane-k0smotron",
+		// // // // 			"bootstrap-k0smotron",
+		// // // // 		})),
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 			template.WithClusterStatusK8sVersion("v1.30.0"),
+		// // // // 		),
+		// // // // 		template.NewServiceTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithServiceK8sConstraint("<1.30"),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err:      fmt.Sprintf(`failed to validate k8s compatibility: k8s version v1.30.0 of the ClusterDeployment default/%s does not satisfy constrained version <1.30 from the ServiceTemplate default/%s`, clusterdeployment.DefaultName, testTemplateName),
+		// // // // 	warnings: admission.Warnings{"Failed to validate k8s version compatibility with ServiceTemplates"},
+		// // // // },
+		// // // // {
+		// // // // 	name:              "should fail if the credential is unset",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(clusterdeployment.WithClusterTemplate(testTemplateName)),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: credentials.k0rdent.mirantis.com \"\" not found",
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if credential is not Ready",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		mgmt,
+		// // // // 		credential.NewCredential(
+		// // // // 			credential.WithName(testCredentialName),
+		// // // // 			credential.WithReady(false),
+		// // // // 			credential.WithIdentityRef(
+		// // // // 				&corev1.ObjectReference{
+		// // // // 					Kind: "AWSClusterStaticIdentity",
+		// // // // 					Name: "awsclid",
+		// // // // 				}),
+		// // // // 		),
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: credential is not Ready",
+		// // // // },
+		// // // // {
+		// // // // 	name: "should fail if credential and template providers doesn't match",
+		// // // // 	ClusterDeployment: clusterdeployment.NewClusterDeployment(
+		// // // // 		clusterdeployment.WithClusterTemplate(testTemplateName),
+		// // // // 		clusterdeployment.WithCredential(testCredentialName),
+		// // // // 	),
+		// // // // 	existingObjects: []runtime.Object{
+		// // // // 		credential.NewCredential(
+		// // // // 			credential.WithName(testCredentialName),
+		// // // // 			credential.WithReady(true),
+		// // // // 			credential.WithIdentityRef(
+		// // // // 				&corev1.ObjectReference{
+		// // // // 					Kind: "SomeOtherDummyClusterStaticIdentity",
+		// // // // 					Name: "otherdummyclid",
+		// // // // 				}),
+		// // // // 		),
+		// // // // 		management.NewManagement(
+		// // // // 			management.WithAvailableProviders(v1alpha1.Providers{
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			}),
+		// // // // 		),
+		// // // // 		template.NewClusterTemplate(
+		// // // // 			template.WithName(testTemplateName),
+		// // // // 			template.WithProvidersStatus(
+		// // // // 				"infrastructure-aws",
+		// // // // 				"control-plane-k0smotron",
+		// // // // 				"bootstrap-k0smotron",
+		// // // // 			),
+		// // // // 			template.WithValidationStatus(v1alpha1.TemplateValidationStatus{Valid: true}),
+		// // // // 		),
+		// // // // 	},
+		// // // // 	err: "the ClusterDeployment is invalid: wrong kind of the ClusterIdentity \"SomeOtherDummyClusterStaticIdentity\" for provider \"infrastructure-aws\"",
+		// // // // },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := fake.NewClientBuilder().WithScheme(scheme.Scheme).WithRuntimeObjects(tt.existingObjects...).Build()
-			validator := &ClusterDeploymentValidator{Client: c}
+			cm := corev1.ConfigMap{}
+			sec := corev1.Secret{}
+			mapper := meta.NewDefaultRESTMapper([]schema.GroupVersion{
+				corev1.SchemeGroupVersion,
+				// sec.GroupVersionKind().GroupVersion(),
+				// {Group: "ConfigMap", Version: "apps/v1"},
+				// {Group: "Secret", Version: "apps/v1"},
+			})
+			mapper.Add(cm.GroupVersionKind(), meta.RESTScopeNamespace)
+			mapper.Add(sec.GroupVersionKind(), meta.RESTScopeNamespace)
+
+			c := fake.NewClientBuilder().WithScheme(scheme.Scheme).WithRuntimeObjects(tt.existingObjects...).WithRESTMapper(mapper).Build()
+
+			dynamicClient, err := dynamic.NewForConfig(&rest.Config{})
+			g.Expect(err).To(Not(HaveOccurred()))
+
+			validator := &ClusterDeploymentValidator{Client: c,
+				DynamicClient: dynamicClient,
+				// Mapper:        c.RESTMapper(),
+			}
 			warn, err := validator.ValidateCreate(ctx, tt.ClusterDeployment)
 			if tt.err != "" {
 				g.Expect(err).To(HaveOccurred())

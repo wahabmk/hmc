@@ -25,6 +25,7 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/dynamic"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -36,6 +37,8 @@ import (
 
 type ClusterDeploymentValidator struct {
 	client.Client
+	DynamicClient *dynamic.DynamicClient
+	// Mapper        meta.RESTMapper
 }
 
 const invalidClusterDeploymentMsg = "the ClusterDeployment is invalid"
@@ -44,6 +47,21 @@ var errClusterUpgradeForbidden = errors.New("cluster upgrade is forbidden")
 
 func (v *ClusterDeploymentValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	v.Client = mgr.GetClient()
+	dc, err := dynamic.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		return fmt.Errorf("failed to create dynamic client: %w", err)
+	}
+
+	v.DynamicClient = dc
+
+	// dd := discovery.NewDiscoveryClientForConfigOrDie(mgr.GetConfig())
+	// groupResources, err := restmapper.GetAPIGroupResources(dd)
+	// if err != nil {
+	// 	return err
+	// }
+	// mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
+	// v.Mapper = mapper
+
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&kcmv1.ClusterDeployment{}).
 		WithValidator(v).
@@ -80,7 +98,11 @@ func (v *ClusterDeploymentValidator) ValidateCreate(ctx context.Context, obj run
 		return nil, fmt.Errorf("%s: %w", invalidClusterDeploymentMsg, err)
 	}
 
-	if err := validateServices(ctx, v.Client, clusterDeployment.Namespace, clusterDeployment.Spec.ServiceSpec.Services); err != nil {
+	// if err := validateServices(ctx, v.Client, clusterDeployment.Namespace, clusterDeployment.Spec.ServiceSpec.Services); err != nil {
+	// 	return nil, fmt.Errorf("%s: %w", invalidClusterDeploymentMsg, err)
+	// }
+
+	if err := validateServiceSpec(ctx, v.Client, v.DynamicClient /*v.Mapper,*/, clusterDeployment.Namespace, &clusterDeployment.Spec.ServiceSpec, true); err != nil {
 		return nil, fmt.Errorf("%s: %w", invalidClusterDeploymentMsg, err)
 	}
 
@@ -124,7 +146,7 @@ func (v *ClusterDeploymentValidator) ValidateUpdate(ctx context.Context, oldObj,
 		return nil, fmt.Errorf("%s: %w", invalidClusterDeploymentMsg, err)
 	}
 
-	if err := validateServices(ctx, v.Client, newClusterDeployment.Namespace, newClusterDeployment.Spec.ServiceSpec.Services); err != nil {
+	if err := validateServiceSpec(ctx, v.Client, v.DynamicClient /*v.Mapper,*/, newClusterDeployment.Namespace, &newClusterDeployment.Spec.ServiceSpec, true); err != nil {
 		return nil, fmt.Errorf("%s: %w", invalidClusterDeploymentMsg, err)
 	}
 

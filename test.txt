@@ -1,0 +1,13 @@
+--- FAIL: TestClusterDeploymentValidateCreate (0.00s)
+    --- FAIL: TestClusterDeploymentValidateCreate/should_fail_if_ValuesFrom_are_referring_to_resource_in_another_namespace (0.00s)
+        clusterdeployment_webhook_test.go:531: 
+        
+        
+        
+        
+expected error 'the ClusterDeployment is invalid: ConfigMap "test-configmap" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom Secret "test-secret" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom', 
+
+got error: the ClusterDeployment is invalid: ConfigMap "test-configmap" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom
+    configmaps "test-configmap" not found
+    Secret "test-secret" is in namespace othernamespace, cannot refer to a resource in a namespace other than default in .spec.serviceSpec.services[].valuesFrom
+    secrets "test-secret" not found
